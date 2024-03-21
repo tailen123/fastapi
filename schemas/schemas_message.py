@@ -11,7 +11,7 @@ class MessageBase(BaseModel):
     from_user: bool
     created_at: str
     reason: str
-    reason_type: str
+    reason_type: int
 
 
 class MessageCreate(MessageBase):

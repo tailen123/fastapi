@@ -16,7 +16,7 @@ class Message(Base):
     # from_user是bool型变量
     from_user = Column(Integer)
     reason = Column(String)
-    reason_type = Column(String)
+    reason_type = Column(int)
     is_del = Column(Integer)
     message_id = Column(Integer)
     extend_existing = True
