@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 
-
 import jwt
 from passlib.context import CryptContext
 from passlib.hash import bcrypt
@@ -61,10 +60,9 @@ async def login(username: str, password: str):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    # expire = datetime.utcnow() + timedelta(minutes=30)
+    expire = datetime.utcnow() + timedelta(minutes=30)
     # expire_str = expire.strftime("%Y-%m-%d %H:%M:%S")
-    # token_data = {"sub": username, "exp": expire_str}
-    token_data = {"sub": username}
+    token_data = {"sub": username, "exp": expire}
+    # token_data = {"sub": username}
     token = create_access_token(token_data)
     return {"access_token": token, "token_type": "bearer"}
-

@@ -31,3 +31,17 @@ class Acc(BaseModel):
     total: int
 
 
+class Hard(BaseModel):
+    message_id: int
+    todonums: int
+    onenums: int
+    twonums: int
+    total: int
+    reason_type:int
+
+class HardSet(BaseModel):
+    reason_type:int
+    todonums: int
+    onenums: int
+    twonums: int
+    total: int

@@ -20,8 +20,27 @@ class Result(Base):
 
 class Acc(Base):
     __tablename__ = "acc_view"
-    message_id = Column(Integer,primary_key=True)
+    message_id = Column(Integer, primary_key=True)
     source = Column(String)
+    todonums = Column(Integer)
+    onenums = Column(Integer)
+    twonums = Column(Integer)
+    total = Column(Integer)
+
+
+class Hard(Base):
+    __tablename__ = "hard_view"
+    message_id = Column(Integer, primary_key=True)
+    todonums = Column(Integer)
+    onenums = Column(Integer)
+    twonums = Column(Integer)
+    total = Column(Integer)
+    reason_type = Column(Integer)
+
+
+class HardSet(Base):
+    __tablename__ = "test"
+    reason_type = Column(Integer, primary_key=True)
     todonums = Column(Integer)
     onenums = Column(Integer)
     twonums = Column(Integer)
