@@ -1,11 +1,14 @@
-import sqlalchemy
+import collections
 
+import sqlalchemy
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from ManageOrder.models import models_order
-from ManageOrder.models import models_message, models_result
-from ManageOrder.schemas import schemas_order, schemas_result, schemas_message
-from ManageOrder.database.databases_order import engine, SessionLocal
+
+
+from models import models_order
+from models import models_message, models_result
+from schemas import schemas_order, schemas_result, schemas_message
+from database.databases_order import engine, SessionLocal
 
 
 # 计算该ctx相关模型的困难度
@@ -37,8 +40,10 @@ def get_reason_type_analyse(db: Session, reason_type: int, diff_level: float):
     if db_type is None:
         raise HTTPException(status_code=404, detail="不存在该ctx")
     if diff_level > 1 or diff_level < 0:
-        raise HTTPException(status_code=404, detail="请输入正确的困难度参数")
+        # http code 不要乱写 能规范就规范一下
+        raise HTTPException(status_code=422, detail="请输入正确的困难度参数")
     # 定义一个存放输出结果的字典
+
     result = {}
     for item in db_type:
         message_id = item.message_id
@@ -52,36 +57,40 @@ def get_reason_type_analyse(db: Session, reason_type: int, diff_level: float):
 
 # 输出所有reason_type的结果
 def get_all_analyse(db: Session, diff_level: float):
+
     if diff_level > 1 or diff_level < 0:
+        # 这个直接用pydantic 做不行吗？ 之前不是写过？
         raise HTTPException(status_code=404, detail="请输入正确的困难度参数")
     db_results = db.query(models_result.Hard).filter(models_result.Hard.reason_type != 0).all()
     result = []
 
+    ishard_reason_type2msg_idxs = collections.defaultdict(list)
+
     for record in db_results:
         msg_id = record.message_id
         is_hard = record.total > 0 and (record.onenums / record.total) > diff_level
-        found = False
 
-        for item in result:
-            if item['reason_type'] == record.reason_type and item['is_hard'] == is_hard:
-                found = True
-                item['msg_idx'].append(msg_id)
-                break  # 找到对应的组，更新列表后可以退出循环
+        key = f"{is_hard}_{record.reason_type}"
+        ishard_reason_type2msg_idxs[key].append(msg_id)
 
-        if not found:
-            result.append({
-                'reason_type': record.reason_type,
-                'is_hard': is_hard,
-                'msg_idx': [msg_id]  # 新建列表并加入当前消息ID
-            })
+    for key, msg_ids in ishard_reason_type2msg_idxs.items():
+        is_hard, reason_type = key.split("_")
+        is_hard = bool(is_hard)
+        reason_type = int(reason_type)
+        result.append({
+            'reason_type': reason_type,
+            'is_hard': is_hard,
+            'msg_idx': msg_ids
+        })
 
     return result
 
 
 # 对不同模型进行对比分析
 def get_model_analyse(db: Session, modelA: str, modelB: str, reason_type: list[int]):
-    result = []
 
+    # 能索引就直接索引，可读性、时间复杂度都会好一点。
+    result_dict = {}
     for reasontype in reason_type:
         if reasontype == 0:
             raise HTTPException(status_code=400, detail="reason_type不能为0")
@@ -97,23 +106,20 @@ def get_model_analyse(db: Session, modelA: str, modelB: str, reason_type: list[i
             msg_id = record.message_id
             benchmark_a = record.onenums / record.total
 
-            result.append({
+            result_dict[msg_id] = {
                 'message_id': msg_id,
                 'benchmark_a': benchmark_a,
                 'benchmark_b': None
-            })
+            }
 
         for record1 in db_b:
             msg_id = record1.message_id
             benchmark_b = record1.onenums / record1.total
 
-            found = False
-            for item in result:
-                if item['message_id'] == msg_id:
-                    found = True
-                    item['benchmark_b'] = benchmark_b
-                    break
-            if not found:
+            if msg_id not in result_dict:
+                # 这里，某一个msg没有，就全盘否定所有结果？是不是可以处理的更优雅一点。
                 raise HTTPException(status_code=404, detail="当前类型下无模型b的结果")
 
-    return result
+            result_dict[msg_id][benchmark_b] = benchmark_b
+
+    return list(result_dict.values())

@@ -1,11 +1,11 @@
+
 from fastapi import APIRouter, Depends, FastAPI, Query
-
-from ManageOrder.crud.crud_analyse import get_ctxdata_analyse, get_reason_type_analyse, get_all_analyse, \
-    get_model_analyse
-
 from sqlalchemy.orm import Session
-from ManageOrder.database.databases_order import get_db
 from fastapi import FastAPI, Depends, HTTPException, status, Request
+
+from database.databases_order import get_db
+from crud.crud_analyse import get_ctxdata_analyse, get_reason_type_analyse, get_all_analyse, \
+    get_model_analyse
 
 from ManageOrder.middleware.middleware import auth_check
 
