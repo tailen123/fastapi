@@ -13,7 +13,7 @@ from ManageOrder.schemas import schemas_order
 router = APIRouter(dependencies=[Depends(auth_check)])
 
 
-@router.get("/", response_model=schemas_order.Order_list)
+@router.get("/orders", response_model=schemas_order.Order_list)
 async def get_orders(db: Session = Depends(get_db)):
     orders = get_orders_from_db(db)
     return orders
@@ -25,7 +25,7 @@ async def get_one_order_by_id(order_id: int, db: Session = Depends(get_db)):
     return order
 
 
-@router.post("/orders/", response_model=schemas_order.Order)
+@router.post("/orders", response_model=schemas_order.Order)
 async def create_new_item(order_id: int, note: str, db: Session = Depends(get_db)):
     return create_order(db, order_id=order_id, note=note)
 

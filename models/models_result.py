@@ -35,13 +35,9 @@ class Hard(Base):
     onenums = Column(Integer)
     twonums = Column(Integer)
     total = Column(Integer)
+    source = Column(String)
     reason_type = Column(Integer)
 
 
-class HardSet(Base):
-    __tablename__ = "test"
-    reason_type = Column(Integer, primary_key=True)
-    todonums = Column(Integer)
-    onenums = Column(Integer)
-    twonums = Column(Integer)
-    total = Column(Integer)
+
+

@@ -14,6 +14,6 @@ from ManageOrder.middleware.middleware import auth_check
 router = APIRouter(dependencies=[Depends(auth_check)])
 
 
-@router.get("/messages/",response_model=Message_list)
+@router.get("/messages", response_model=Message_list)
 def get_messages_by_order_id(order_id: int, db: Session = Depends(get_db)):
     return get_message_by_order_id(db, order_id=order_id)

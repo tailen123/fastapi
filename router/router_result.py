@@ -3,16 +3,14 @@ from typing import Literal
 
 from fastapi import APIRouter, Depends, FastAPI, Query
 
-from ManageOrder.crud.crud_order import get_orders_from_db, get_order_by_id, delete_order, update_order, create_order
-from ManageOrder.crud.crud_message import get_message_by_order_id
+
 from ManageOrder.crud.crud_result import get_result_by_ctx_id, update_score_by_result_id, get_sources, \
     get_todoresult_by_message_id
 
 from sqlalchemy.orm import Session
 from ManageOrder.database.databases_order import get_db
 from fastapi import FastAPI, Depends, HTTPException, status, Request
-from ManageOrder.schemas.schemas_order import Order, Order_list
-from ManageOrder.schemas.schemas_message import Message, Message_list
+
 from ManageOrder.schemas.schemas_result import Result, Result_list, Acc
 from ManageOrder.middleware.middleware import auth_check
 
@@ -51,7 +49,7 @@ def get_source(db: Session = Depends(get_db)):
     return get_sources(db)
 
 
-@router.get("/todonums/")
+@router.get("/todonums")
 def get_todo_nums(message_id: int,
                   source: source_list =
                   Query("psychic-sft.13b.mscwsum.5_sum.5_airo.5_insight.5.e1", enum=[

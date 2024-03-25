@@ -60,7 +60,7 @@ async def login(username: str, password: str):
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    expire = datetime.utcnow() + timedelta(minutes=30)
+    expire = datetime.utcnow() + timedelta(minutes=300)
     # expire_str = expire.strftime("%Y-%m-%d %H:%M:%S")
     token_data = {"sub": username, "exp": expire}
     # token_data = {"sub": username}

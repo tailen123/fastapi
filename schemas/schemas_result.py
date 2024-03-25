@@ -37,11 +37,8 @@ class Hard(BaseModel):
     onenums: int
     twonums: int
     total: int
-    reason_type:int
+    reason_type: int
+    source: str
 
-class HardSet(BaseModel):
-    reason_type:int
-    todonums: int
-    onenums: int
-    twonums: int
-    total: int
+
+

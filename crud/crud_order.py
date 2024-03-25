@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from ManageOrder.models import models_order
 from ManageOrder.schemas import schemas_order, schemas_result, schemas_message
-from ManageOrder.database.databases_order import atomicity
+
 
 
 # @atomicity

@@ -1,8 +1,11 @@
+import sqlalchemy
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from ManageOrder.models import models_order
 from ManageOrder.models import models_message, models_result
 from ManageOrder.schemas import schemas_order, schemas_result, schemas_message
+from ManageOrder.database.databases_order import engine, SessionLocal
 
 
 # 计算该ctx相关模型的困难度
@@ -71,5 +74,46 @@ def get_all_analyse(db: Session, diff_level: float):
                 'is_hard': is_hard,
                 'msg_idx': [msg_id]  # 新建列表并加入当前消息ID
             })
+
+    return result
+
+
+# 对不同模型进行对比分析
+def get_model_analyse(db: Session, modelA: str, modelB: str, reason_type: list[int]):
+    result = []
+
+    for reasontype in reason_type:
+        if reasontype == 0:
+            raise HTTPException(status_code=400, detail="reason_type不能为0")
+        db_a = db.query(models_result.Hard).filter(models_result.Hard.reason_type == reasontype,
+                                                   models_result.Hard.source == modelA).all()
+
+        new_db = Session(bind=engine)
+        db_b = new_db.query(models_result.Hard).filter(
+            models_result.Hard.reason_type == reasontype,
+            models_result.Hard.source == modelB).all()
+
+        for record in db_a:
+            msg_id = record.message_id
+            benchmark_a = record.onenums / record.total
+
+            result.append({
+                'message_id': msg_id,
+                'benchmark_a': benchmark_a,
+                'benchmark_b': None
+            })
+
+        for record1 in db_b:
+            msg_id = record1.message_id
+            benchmark_b = record1.onenums / record1.total
+
+            found = False
+            for item in result:
+                if item['message_id'] == msg_id:
+                    found = True
+                    item['benchmark_b'] = benchmark_b
+                    break
+            if not found:
+                raise HTTPException(status_code=404, detail="当前类型下无模型b的结果")
 
     return result

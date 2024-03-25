@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from ManageOrder.models import models_order
+
 from ManageOrder.models import models_message, models_result
 from ManageOrder.schemas import schemas_order, schemas_result, schemas_message
 
@@ -25,12 +25,14 @@ def get_todoresult_by_message_id(db: Session, message_id: int, source: str):
         done = db_acc.onenums + db_acc.twonums
         data = {"todonums": db_acc.todonums, "onenums": db_acc.onenums, "twonums": db_acc.twonums,
                 "total": db_acc.total,
-                "acc": (db_acc.onenums + db_acc.twonums) / db_acc.total if db_acc.total else 0}
+                "acc": db_acc.onenums / db_acc.total if db_acc.total else 0}
         return data
 
 
 # 更新模型评分
 def update_score_by_result_id(db: Session, result_id: int, score: int):
+    if score>2 or score<0:
+        raise HTTPException(status_code=400, detail=" score的取支范围为0，1，2")
     db_result = db.query(models_result.Result).filter(models_result.Result.result_id == result_id).first()
     if db_result is None:
         raise HTTPException(status_code=404, detail=" 结果不存在")
