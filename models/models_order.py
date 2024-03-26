@@ -1,7 +1,7 @@
 # models.py
 
 from sqlalchemy import Column, Integer, String
-from ManageOrder.database.databases_order import Base
+from database.databases_order import Base
 
 
 class Order(Base):

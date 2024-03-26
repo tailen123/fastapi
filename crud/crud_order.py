@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from ManageOrder.models import models_order
-from ManageOrder.schemas import schemas_order, schemas_result, schemas_message
+from models import (models_order)
+from schemas import schemas_order, schemas_result, schemas_message
 
 
 

@@ -3,12 +3,20 @@ import collections
 import sqlalchemy
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+<<<<<<< Updated upstream
 
 
 from models import models_order
 from models import models_message, models_result
 from schemas import schemas_order, schemas_result, schemas_message
 from database.databases_order import engine, SessionLocal
+=======
+from models import models_order
+from models import models_message, models_result
+from schemas import schemas_result
+from database.databases_order import engine, SessionLocal
+from schemas.schemas_result import InputDiff
+>>>>>>> Stashed changes
 
 
 # 计算该ctx相关模型的困难度
@@ -16,10 +24,13 @@ def get_ctxdata_analyse(db: Session, message_id: int, diff_level: float):
     # 确保他是ctx消息
     db_ctx = db.query(models_message.Message).filter(models_message.Message.message_id == message_id
                                                      , models_message.Message.reason_type != 0).first()
+    try:
+        inputData = InputDiff(diff_level=diff_level)
+    except Exception as e:
+        raise HTTPException(status_code=422,detail=f"diff_level参数输入错误{e}")
+
     if db_ctx is None:
         raise HTTPException(status_code=404, detail="不存在该ctx")
-    if diff_level > 1 or diff_level < 0:
-        raise HTTPException(status_code=404, detail="请输入正确的困难度参数")
 
     # 在视图表查询与该ctx相关的模型信息
     db_results = db.query(models_result.Hard).filter(models_result.Hard.message_id == message_id).first()
@@ -34,14 +45,22 @@ def get_ctxdata_analyse(db: Session, message_id: int, diff_level: float):
 # 计算传入的reason_type数据集的困难度
 
 def get_reason_type_analyse(db: Session, reason_type: int, diff_level: float):
+    try:
+        inputData = InputDiff(diff_level=diff_level)
+    except Exception as e:
+        raise HTTPException(status_code=422,detail=f"diff_level参数输入错误{e}")
     if reason_type == 0:
         raise HTTPException(status_code=404, detail="请输入正确的ctx类型")
     db_type = db.query(models_result.Hard).filter(models_result.Hard.reason_type == reason_type).all()
     if db_type is None:
         raise HTTPException(status_code=404, detail="不存在该ctx")
+<<<<<<< Updated upstream
     if diff_level > 1 or diff_level < 0:
         # http code 不要乱写 能规范就规范一下
         raise HTTPException(status_code=422, detail="请输入正确的困难度参数")
+=======
+
+>>>>>>> Stashed changes
     # 定义一个存放输出结果的字典
 
     result = {}
@@ -57,10 +76,18 @@ def get_reason_type_analyse(db: Session, reason_type: int, diff_level: float):
 
 # 输出所有reason_type的结果
 def get_all_analyse(db: Session, diff_level: float):
+<<<<<<< Updated upstream
 
     if diff_level > 1 or diff_level < 0:
         # 这个直接用pydantic 做不行吗？ 之前不是写过？
         raise HTTPException(status_code=404, detail="请输入正确的困难度参数")
+=======
+    try:
+        inputData = InputDiff(diff_level=diff_level)
+    except Exception as e:
+        raise HTTPException(status_code=422,detail=f"diff_level参数输入错误")
+
+>>>>>>> Stashed changes
     db_results = db.query(models_result.Hard).filter(models_result.Hard.reason_type != 0).all()
     result = []
 

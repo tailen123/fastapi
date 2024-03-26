@@ -1,6 +1,6 @@
 # models.py
 from sqlalchemy import Column, Integer, String, CheckConstraint
-from ManageOrder.database.databases_order import Base
+from database.databases_order import Base
 
 
 class Result(Base):

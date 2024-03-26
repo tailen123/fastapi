@@ -2,13 +2,13 @@
 
 from fastapi import APIRouter, Depends, FastAPI
 
-from ManageOrder.crud.crud_order import get_orders_from_db, get_order_by_id, delete_order, update_order, create_order
+from crud.crud_order import get_orders_from_db, get_order_by_id, delete_order, update_order, create_order
 from sqlalchemy.orm import Session
-from ManageOrder.database.databases_order import get_db
+from database.databases_order import get_db
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 
-from ManageOrder.middleware.middleware import auth_check
-from ManageOrder.schemas import schemas_order
+from middleware.middleware import auth_check
+from schemas import schemas_order
 
 router = APIRouter(dependencies=[Depends(auth_check)])
 
