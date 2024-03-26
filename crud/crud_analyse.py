@@ -1,22 +1,13 @@
 import collections
 
-import sqlalchemy
+
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-<<<<<<< Updated upstream
 
-
-from models import models_order
-from models import models_message, models_result
-from schemas import schemas_order, schemas_result, schemas_message
-from database.databases_order import engine, SessionLocal
-=======
-from models import models_order
 from models import models_message, models_result
 from schemas import schemas_result
 from database.databases_order import engine, SessionLocal
 from schemas.schemas_result import InputDiff
->>>>>>> Stashed changes
 
 
 # 计算该ctx相关模型的困难度
@@ -27,7 +18,7 @@ def get_ctxdata_analyse(db: Session, message_id: int, diff_level: float):
     try:
         inputData = InputDiff(diff_level=diff_level)
     except Exception as e:
-        raise HTTPException(status_code=422,detail=f"diff_level参数输入错误{e}")
+        raise HTTPException(status_code=422, detail=f"diff_level参数输入错误{e}")
 
     if db_ctx is None:
         raise HTTPException(status_code=404, detail="不存在该ctx")
@@ -48,19 +39,17 @@ def get_reason_type_analyse(db: Session, reason_type: int, diff_level: float):
     try:
         inputData = InputDiff(diff_level=diff_level)
     except Exception as e:
-        raise HTTPException(status_code=422,detail=f"diff_level参数输入错误{e}")
+        raise HTTPException(status_code=422, detail=f"diff_level参数输入错误{e}")
     if reason_type == 0:
         raise HTTPException(status_code=404, detail="请输入正确的ctx类型")
     db_type = db.query(models_result.Hard).filter(models_result.Hard.reason_type == reason_type).all()
     if db_type is None:
         raise HTTPException(status_code=404, detail="不存在该ctx")
-<<<<<<< Updated upstream
+
     if diff_level > 1 or diff_level < 0:
         # http code 不要乱写 能规范就规范一下
         raise HTTPException(status_code=422, detail="请输入正确的困难度参数")
-=======
 
->>>>>>> Stashed changes
     # 定义一个存放输出结果的字典
 
     result = {}
@@ -76,18 +65,11 @@ def get_reason_type_analyse(db: Session, reason_type: int, diff_level: float):
 
 # 输出所有reason_type的结果
 def get_all_analyse(db: Session, diff_level: float):
-<<<<<<< Updated upstream
-
-    if diff_level > 1 or diff_level < 0:
-        # 这个直接用pydantic 做不行吗？ 之前不是写过？
-        raise HTTPException(status_code=404, detail="请输入正确的困难度参数")
-=======
     try:
         inputData = InputDiff(diff_level=diff_level)
     except Exception as e:
-        raise HTTPException(status_code=422,detail=f"diff_level参数输入错误")
+        raise HTTPException(status_code=422, detail=f"diff_level参数输入错误")
 
->>>>>>> Stashed changes
     db_results = db.query(models_result.Hard).filter(models_result.Hard.reason_type != 0).all()
     result = []
 
@@ -95,14 +77,20 @@ def get_all_analyse(db: Session, diff_level: float):
 
     for record in db_results:
         msg_id = record.message_id
-        is_hard = record.total > 0 and (record.onenums / record.total) > diff_level
+        a = record.onenums / record.total
+        print(a)
+        is_hard = True if record.onenums / record.total > diff_level else False
 
         key = f"{is_hard}_{record.reason_type}"
         ishard_reason_type2msg_idxs[key].append(msg_id)
 
     for key, msg_ids in ishard_reason_type2msg_idxs.items():
         is_hard, reason_type = key.split("_")
-        is_hard = bool(is_hard)
+
+        if is_hard == "True":
+            is_hard = bool(1)
+        else:
+            is_hard = bool()
         reason_type = int(reason_type)
         result.append({
             'reason_type': reason_type,
@@ -115,7 +103,6 @@ def get_all_analyse(db: Session, diff_level: float):
 
 # 对不同模型进行对比分析
 def get_model_analyse(db: Session, modelA: str, modelB: str, reason_type: list[int]):
-
     # 能索引就直接索引，可读性、时间复杂度都会好一点。
     result_dict = {}
     for reasontype in reason_type:
@@ -136,7 +123,6 @@ def get_model_analyse(db: Session, modelA: str, modelB: str, reason_type: list[i
             result_dict[msg_id] = {
                 'message_id': msg_id,
                 'benchmark_a': benchmark_a,
-                'benchmark_b': None
             }
 
         for record1 in db_b:
@@ -145,8 +131,8 @@ def get_model_analyse(db: Session, modelA: str, modelB: str, reason_type: list[i
 
             if msg_id not in result_dict:
                 # 这里，某一个msg没有，就全盘否定所有结果？是不是可以处理的更优雅一点。
-                raise HTTPException(status_code=404, detail="当前类型下无模型b的结果")
-
-            result_dict[msg_id][benchmark_b] = benchmark_b
+                del result_dict[msg_id]
+            else:
+                result_dict[msg_id]['benchmark_b'] = benchmark_b
 
     return list(result_dict.values())

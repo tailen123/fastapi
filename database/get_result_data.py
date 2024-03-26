@@ -1,6 +1,4 @@
 import json
-from http.client import HTTPException
-from fastapi import FastAPI, Depends, HTTPException, status
 
 import pymysql
 

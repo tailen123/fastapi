@@ -1,15 +1,4 @@
-
 from fastapi import APIRouter, Depends, FastAPI, Query
-<<<<<<< Updated upstream
-from sqlalchemy.orm import Session
-from fastapi import FastAPI, Depends, HTTPException, status, Request
-
-from database.databases_order import get_db
-from crud.crud_analyse import get_ctxdata_analyse, get_reason_type_analyse, get_all_analyse, \
-    get_model_analyse
-
-from ManageOrder.middleware.middleware import auth_check
-=======
 
 from crud.crud_analyse import get_ctxdata_analyse, get_reason_type_analyse, get_all_analyse, \
     get_model_analyse
@@ -20,7 +9,6 @@ from database.databases_order import get_db
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 
 from middleware.middleware import auth_check
->>>>>>> Stashed changes
 
 router = APIRouter(dependencies=[Depends(auth_check)])
 
